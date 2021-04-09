@@ -1,0 +1,148 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+margin: 0;
+padding: 0;
+border: 0;
+font-size: 100%;
+font: inherit;
+vertical-align: baseline;
+}
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+display: block;
+}
+body {
+line-height: 1;
+background-image:url("https://i.pinimg.com/originals/9e/77/20/9e772044665292ad44413333fe0443f8.jpg");
+background-size:cover;
+}
+.header{
+padding:2px 25px 0px 25px;
+background-image:url("https://media.tenor.com/images/c53bc7985bd46061567bfc9ea359d8d0/tenor.gif");
+}
+.head-logo{
+text-align:center;
+color:#fff;
+}
+.head-logo h1{
+font-size:45px;
+font-family:"homestead";
+
+}
+.head-logo h4{
+font-size:30px;
+font-family:"homestead";
+}
+.content {
+    background-color:rgba(0, 0, 0, 0.4);
+  color:white;
+  border-radius: 10px 10px 10px 10px;
+    padding: 20px;
+  margin-top:50px;
+  margin-left:300px;
+  font-size:20px;
+    width: 50%;
+    height: 180px;
+  text-align:center;
+  
+}
+html {
+  font-size: 62.5%;
+}
+
+
+.row {
+  color: black;
+  font-size: 20px;
+  text-align: center;
+  max-width: 114rem;
+  background-color: #eee;
+  position: relative;
+  margin: 0 auto;
+}
+.row:not(:last-child) {
+  margin-bottom: 32rem;
+}
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+.row [class^="col-"] {
+  float: left;
+}
+.row [class^="col-"]:not(:last-child) {
+  margin-right: 0rem;
+}
+.row .heading {
+  font-family: Sans-serif;
+  font-weight: 400;
+  position: absolute;
+  text-transform: uppercase;
+  top: 38rem;
+  padding: 1rem;
+  letter-spacing: 2.2rem;
+  font-size: 5rem;
+  outline: 0.5rem solid rgba(0, 0, 0, 0.65);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.85);
+}
+.row .col-1-of-5 {
+  width: calc((100% - (4 * 0rem))/5);
+  height: 32rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: absolute;
+  border-radius: 5px;
+  transition: all .2s;
+  top: 2rem;
+}
+.row .col-1-of-5.img-1 {
+  background-image: url("https://www.sikh24.com/wp-content/uploads/2015/07/arc2_big.png");
+  position: absolute;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.85);
+  left: 7rem;
+  z-index: 1;
+}
+.row .col-1-of-5.img-2 {
+  background-image: url("https://static.toiimg.com/thumb/61820954/Golden-Temple.jpg?width=748&height=499");
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
+  left: 26rem;
+  z-index: 2;
+}
+.row .col-1-of-5.img-3 {
+  background-image: url("https://image3.mouthshut.com/images/imagesp/925752554s.jpg");
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.85);
+  left: 45rem;
+  z-index: 3;
+}
+.row .col-1-of-5.img-4 {
+  background-image: url("http://storage.ottawasun.com/v1/dynamic_resize/sws_path/suns-prod-images/1297256561422_ORIGINAL.jpg?size=520x");
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
+  right: 27rem;
+  z-index: 2;
+}
+.row .col-1-of-5.img-5 {
+  background-image: url("https://content3.jdmagicbox.com/comp/patiala/k1/9999px175.x175.141221095005.k4k1/catalogue/qila-mubarak-patiala-ho-patiala-tourist-attraction-w3k9b1g.jpg");
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.85);
+  right: 7rem;
+  z-index: 1;
+}
+.row .col-1-of-5:hover {
+  transform: scale(1.05) translateY(-1rem);
+  box-shadow: 0 2.5rem 4rem rgba(0, 0, 0, 0.5);
+  z-index: 20;
+}
+.row:hover .col-1-of-5:not(:hover) {
+  transform: scale(0.95);
+}

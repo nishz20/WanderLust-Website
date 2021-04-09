@@ -1,0 +1,1111 @@
+var bob = window.bob || {};
+
+bob = {
+
+	trackerList : [
+		'clickenc',
+		'click',
+		'redirect',
+		'relocate'
+	],
+	delay : 0,
+	customClickTag : false,
+	customClickTagParams : false,
+	timers : {},
+	dc : false,
+	apis : {},
+	overrideClickTag : function(args) {
+		bob.customClickTag = true;
+	},
+	doLog : false,
+	log : function(msg) {
+		if(bob.doLog) {
+			console.log(msg);
+		}
+	},
+
+	//handle the clickthrough
+	exitHandler : function() {
+		//bob.doLog = true;
+		bob.log(v.data);
+		var clickthrough;
+
+		//if the banner is adform, use the adform clickthrough method
+		if(typeof richBanner != "undefined" && richBanner && richBanner == 'adform' ) {
+
+			clickTAGvalue = dhtml.getVar('clickTAG', 'http://www.example.com');
+			landingpagetarget = dhtml.getVar('landingPageTarget', '_blank');
+			window.open(clickTAGvalue, landingpagetarget);
+
+		//if the banner is sizmek, use the sizmek clickthrough method
+		} else if(typeof richBanner != "undefined" && richBanner && richBanner == 'sizmek' ) {
+
+			//first, check and see if the URL has been set in the variation data
+			//if it has, use that as the clickthrough
+			if(v.data && v.data.attributes.url != undefined && v.data.attributes.url != '' ) {
+				bob.log('CT > BOB url  - EB.userActionCounter(); - '+v.data.attributes.url);
+				EB.userActionCounter("exit", ""+v.data.attributes.url+"");
+				//EB.clickthrough('exit', v.data.attributes.url); 
+			//if the clickthrough hasnt been set in the variation data do the standard clickthrough
+			} else {
+				bob.log('CT > standard - EB.clickthrough();');
+				EB.clickthrough();
+			}
+
+		//if the banner is doubleclick spreadsheet
+		} else if(typeof richBanner != "undefined" && richBanner && ( richBanner == 'doubleclick' || richBanner == 'doubleclickspreadsheet' ) ) {
+			//check the clickthrough has been loaded in through the spreadsheet
+			clickthrough = bob.checkRichContent(false, 'clickthrough');
+			if(clickthrough) {
+				bob.log('CT > dynamic  - Enabler.exit(); ')
+				Enabler.exitOverride('Background Exit', clickthrough);
+			//if the clickthrough hasnt been loaded through the spreadsheet, use the standard exit
+			} else {
+				bob.log('CT > standard - Enabler.exit(); ')
+				Enabler.exit('Background Exit');
+			}
+		//if the banner is a standard HTML banner, do this
+		} else if(v.data && v.data.attributes.url != undefined && v.data.attributes.url != '' && ( window.clickTag != undefined || window.clickTagSizmek != undefined ) ) {
+			bob.log(v.data.attributes.url);
+			//check to see if the clicktag has been set
+			var ct = window.clickTag;
+			if(typeof window.clickTagPayload != 'undefined') {
+				ct = window.clickTagPayload;
+			} else if(typeof window.clickTagSizmek != 'undefined') {
+				ct = window.clickTagSizmek;
+			}
+			bob.log(ct);
+			//set up some vars
+			var urlParams = bob.decodeURL(ct);
+			var subUrlParms;
+		   	var newurl = false;
+		   	var adfix = false;
+		   	var i;
+		   	var tripped = false;
+		   	var varholder = '';
+		   	// bob.log('--------------------');
+		   	// bob.log(ct);
+		   	// bob.log('--------------------');
+		   	// bob.log(urlParams);
+		   	// bob.log('--------------------');
+		   	//doubleclick uses the nested variable called 'adurl' to populate the clickthrough and make sure it tracks
+		   	var adsplit = ct.split('adurl=');
+		   	var isnested = false;
+		   	var adspliturl = '';
+		   	var endurl = '';
+		   	bob.log('adsplit.length:'+adsplit.length);
+		   	//if adurl is mentioned more than once, it means we've got a nested url
+		   	//this happens when doublelclick banners are trafficed through DCM and then loaded to DC Adserver
+		   	if(adsplit.length == 3) {
+		   		adsplit[2] = v.data.attributes.url;
+		   		isnested = true;
+		   	}
+		   	if(isnested) {
+		   		//loop through the array and build the nested URL back up, replacing the url with the BOB loaded URL
+		   		for (i = 0; i < adsplit.length; ++i) {
+		   			if(adspliturl == '') {
+		   				adspliturl += adsplit[i];
+		   			} else {
+		   				adspliturl += 'adurl='+adsplit[i];
+		   			}
+		   		}
+				bob.log('CT > nested click from BOB: '+adspliturl);
+				endurl = adspliturl;
+			//if the banner isnt nested, continue
+		   	} else {
+		   		bob.log(urlParams);
+		   		//loop through the URL paramas and try to figure out where we should be injecting the URL
+			   	for(key in urlParams) {
+			   		bob.log(key+': '+urlParams[key]);
+			   		varholder = urlParams[key];
+			   		//if the key = adurl, we can assume this is doubleclick
+			   		if(key == 'adurl') {
+			   			tripped = bob.checkInjection(urlParams[key]);
+						if(tripped) {
+							//check for sub injections
+							//subUrlParms = bob.decodeURL(tripped);
+							urlParams[key] = tripped;
+						} else {
+							urlParams[key] = v.data.attributes.url;
+						}
+						//sizmek fix
+						if(varholder == '"]') {
+							urlParams[key] += varholder;
+						}
+			   		}
+			   		//if there isnt a new url, rebuild the URL
+			   		if(!newurl) {
+			   			newurl = key;
+			   			if(urlParams[key] != '') {
+			   				newurl += '='+urlParams[key];
+			   			}
+			   		//if there is a new url, inject it
+			   		} else {
+			   			newurl += '&'+key;
+			   			if(urlParams[key] != '') {
+			   				newurl += '='+urlParams[key];
+			   			}
+			   		}
+			   	}
+			   	//if the newurl is google, assume something has gone wrong
+			   	if(newurl == 'http://www.google.com' || newurl == 'https://www.google.com' || newurl == 'http://www.google.com/' || newurl == 'https://www.google.com/') {
+					bob.log('google ct detected... reverting to v.data.attributes.url:'+v.data.attributes.url );
+			   		newurl = v.data.attributes.url;
+			   	}
+				bob.log('CT > click from BOB: '+newurl );
+				//finally, assign the URL
+				endurl = newurl;
+		   	}
+		   	//open the url in a new window
+	   		bob.log('CT > URL from bob - window.open()')
+	   		window.open(endurl);
+
+		} else if(bob.customClickTag && bob.customClickTagParams) {
+			bob.log('CT > custom window.clicktag: '+window.clickTag );
+			window.open(window.clickTag);
+
+		} else if(typeof window.clickTAG == 'string' ) {
+			bob.log('CT > standard window.clickTAG - '+window.clickTAG );
+			window.open(window.clickTAG);
+
+		} else {
+			bob.log('CT > standard window.clickTag - '+window.clickTag );
+			window.open(window.clickTag);
+
+		}
+	},
+
+	//decode the URL and return seperated variable names and values
+	decodeURL : function(url) {
+		var urlParams;
+		var match,
+		    pl     = /\+/g,  // Regex for replacing addition symbol with a space
+		    search = /([^&=]+)=?([^&]*)/g,
+		    decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+		    query  = url;
+		urlParams = {};
+		while (match = search.exec(query))
+		   urlParams[decode(match[1])] = decode(match[2]);
+
+		return urlParams;
+	},
+
+	//check for URL injection
+	//if you are having click tracking issues, check the URL for new tracker URLs and add them to the trackerlist (above)
+	checkInjection : function(urlParam) {
+		var adfix;
+		var tripped = false;
+		//loop through each tracker and check to inject
+		for (i = 0; i < bob.trackerList.length; ++i) {
+			bob.log('checking for '+bob.trackerList[i]);
+			adfix = urlParam.split(bob.trackerList[i]+'=');
+			if(adfix.length == 2) {
+				bob.log('tracker: '+bob.trackerList[i]);
+				urlParam = adfix[0]+bob.trackerList[i]+'='+v.data.attributes.url;
+				tripped = true;
+				break;
+			}
+		}
+		if(tripped) {
+			return urlParam;
+		} else {
+			return false;
+		}
+	},
+
+	//the magic catch all function to decide whether there is some dynamic content that need switching out
+	checkRichContent : function(currentValue, id) {
+		toreturn = currentValue;
+		//naming convention for google spreadsheet
+		if(id != 'clickthrough') {
+			id = 'frame'+id;
+		}
+		//check for dymanic content and override
+		if((typeof bob.dc == 'object' && typeof richBanner != "undefined" && richBanner) || typeof v.data.google_spreadsheet_data == 'object' ) {
+			bob.log('checkRichContent('+id+')');
+			bob.log(bob.dc);
+			bob.log(v.data);
+			//check through the dynamic profile for the content you're after
+			for (dkey in bob.dc) {
+				if(dkey != '_profileid') {
+					if(typeof bob.dc[dkey][0][id] !== 'undefined' && bob.dc[dkey][0][id] != '' && typeof bob.dc[dkey][0][id].Url !== 'undefined') {
+						//if the content to update is a URL, it sits in a different location for some reason
+						toreturn = bob.dc[dkey][0][id].Url;
+						bob.log('OVERRIDING CONTENT (URL) '+id);
+						bob.log(currentValue);
+						bob.log('-------with-------');
+						bob.log(toreturn);
+						bob.log('------------------');
+					} else if(typeof bob.dc[dkey][0][id] !== 'undefined' && bob.dc[dkey][0][id] != '') {
+						//otherwise, do the thing and get the new content
+						toreturn = bob.dc[dkey][0][id];
+						bob.log('OVERRIDING CONTENT '+id);
+						bob.log(currentValue);
+						bob.log('-------with-------');
+						bob.log(toreturn);
+						bob.log('------------------');
+					} else {
+						//if there is no rich content, return the existing content
+						toreturn = currentValue;
+					}
+				}
+			}
+		}
+		//loop through each API and fire the apicheck function
+		for(key in bob.apis) {
+			toreturn = window[bob.apis[key]].apicheck(toreturn, id);
+		}
+		//return the value
+		return toreturn;
+	},
+
+	checkTextImage : function() {
+
+	},
+
+	loadJS : function() {
+		//check to see if there isnt any data, if there isnt any data we can assume we're displaying the default backup
+		var isbackup = false;
+		//if there is data, figure out what template and framecount
+		if(v.data && typeof v.data.attributes == 'object' && typeof v.data.frames == 'object') {
+			v.template = v.data.attributes.template;
+			u.framecount = v.data.frames.value.length;
+		//if there isnt data, then assume its the default backup
+		} else {
+			u.framecount = 1;
+			isbackup = true;
+		}
+
+		bob.log('isbackup: '+isbackup);
+		
+		//make sure the loop count is a number (sometimes it thinks its a string)
+		u.loopcount = parseInt(u.loopcount);
+		if(v.data && !isbackup) {
+			u.loopcount = parseInt(v.data.attributes.maxLoop);
+		} else {
+			u.loopcount = 1;
+		}
+		
+		//loop count
+		if(!isbackup && v.data && typeof v.data.attributes == 'object' && v.data.attributes.looping == 'true') {
+			u.loopcount = 1000;
+		}
+		
+		//as of v2, some more stuff has been moved in here
+		if(typeof u.coreversion != 'undefined' && u.coreversion == 2) {
+			u.objects.body = document.getElementById("body");
+			u.objects.replayCTA = document.getElementById("replay_cta");
+			u.objects.bannerWrapper = document.getElementById("banner_wrapper");
+			u.bodyBaseClassName = u.objects.body.className;
+		}
+
+		//initiate banner
+		u.init();
+		
+		//assign dynamic content
+		if(typeof dynamicContent == 'object') {
+			bob.dc = dynamicContent;
+		} else if(typeof devDynamicContent == 'object') {
+			bob.dc = devDynamicContent;
+		} else if(typeof v.data.google_spreadsheet_data == 'object') {
+			bob.dc = v.data.google_spreadsheet_data;
+		}
+		bob.log(bob.dc);
+		
+		//initate each API
+		for(key in bob.apis) {
+			window[bob.apis[key]].init();
+		}
+		
+
+		//as of v2, some more stuff has been moved in here
+		if(typeof u.coreversion != 'undefined' && u.coreversion == 2) {
+			//if there is no data, we assume that the backup should be running
+			if(isbackup) {
+				u.objects.body.className += ' backupimg';
+				var backupimg = document.createElement("img");
+				backupimg.src = v.data.attributes.server+'/uploads/templates/'+v.template+"/"+v.size+"/"+v.size+"_backup.jpg";
+				u.objects.body.appendChild(backupimg);
+			} else {
+				bob.startAnimation(0);
+				if(u.objects.replayCTA != null) {
+					u.objects.replayCTA.onclick = function(){
+						clearTimeout(bob.timers.replay)
+						bob.timers.replay = setTimeout(function() {
+							u.currentloop --;
+							u.currentframe = 0;
+							bob.startAnimation(0);
+						}, 500);
+					};
+				}
+			}
+			//click event
+			document.getElementById('bg-exit').addEventListener('click', bob.exitHandler, false); 
+		}
+	},
+
+	startAnimation : function(delay) {
+		//step through animations
+		u.paused = false;
+		bob.stepforward(delay);
+		if(u.objects.replayCTA != null) {
+			u.objects.replayCTA.className = 'replay off';
+		}
+		// u.timers.step = setTimeout(function() {
+		// 	bob.log('startAnimation setTimeout');
+		// 	bob.stepInt();
+		// }, (u.frametime*1000));
+	},
+
+	//advance the frame forward, or check for replay and enable it
+	stepInt : function() {
+		//check loop
+		if(u.currentframe == u.framecount) {
+			u.currentloop ++;
+			bob.log('bob.stepInt() - u.currentloop ++');
+		}
+		//check replay
+		if(u.currentloop > u.loopcount) {
+			//if we've got to the end of the banner, kill the interval that moves the frame forward
+			clearInterval(u.timers.step);
+			if(u.objects.replayCTA != null) {
+				u.objects.replayCTA.className = 'replay on';
+			}
+			bob.log('bob.stepInt() - replay on');
+		} else {
+			bob.log('bob.stepInt() - bob.stepforward(500)');
+			//step forward
+			bob.stepforward(500);	
+		}
+	},
+
+	isHostedFile : function(potentialImageVal) {
+		var hosted = potentialImageVal.split('http');
+		if(hosted.length == 2) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+
+	stepforward : function(delay) {
+		bob.log('u.stepforward(delay)')
+		bob.delay = delay;
+		if( !u.paused ) {
+			u.currentframe ++;
+			if(u.currentframe > u.framecount) {
+				u.currentframe = 1;
+				bob.log('!!! - reseting frame to 1');
+			} else {
+				bob.log('!!! - moving frame to '+u.currentframe);
+			}
+			if(u.currentframe == 1) {
+				u.objects.body.className = u.bodyBaseClassName+' running'
+			} 
+			//fade out frame
+			//u.objects.bannerWrapper.className = "bannerWrapper";
+			u.objects.bannerWrapper.className += " fadeout out";
+			//preload images
+			//load each image in an array so we can perform the JS preload
+			var images = [];
+			var frameTemplate = v.data.frames.value[u.currentframe-1].attributes.type;
+			var data = v.data.frames.value[u.currentframe-1].value;
+			for (ikey in data) {
+				var potentialImageVal = bob.checkRichContent(data[ikey].value, u.currentframe+'_'+data[ikey].attributes.name);
+				var istemplatesize = data[ikey].attributes.name.split(v.size);
+				if(istemplatesize.length == 2) {
+					bob.log(u.currentframe+'_'+data[ikey].attributes.name+': '+potentialImageVal);
+					var value = potentialImageVal.split('.');
+					for(vkey in value) {
+						if(typeof selfhosted != "undefined" && selfhosted) {
+							//dont preload selfhosted
+						} else if( (value[vkey] == 'svg' || value[vkey] == 'png' || value[vkey] == 'jpg') && data[ikey].attributes.input != 'select') {
+							if(bob.isHostedFile(potentialImageVal)) {
+								images.push(potentialImageVal);
+							} else {
+								images.push(v.data.attributes.server+'/uploads/img/'+potentialImageVal);
+							}
+						}
+					}
+				}
+			}
+			//run the preloader
+			if(backup) {
+				bob.afterPreloadImages(false);
+			} else {
+				bob.imgpreload(images, bob.afterPreloadImages);
+			}	
+		}
+	},
+
+	afterPreloadImages : function(images) {
+		bob.log('preloading img');
+		bob.log(images);
+		var frameTemplate = v.data.frames.value[u.currentframe-1].attributes.type;
+		//once everything has loaded, start the banner animation
+		//fade in new frame after delay
+		var timeout = setTimeout(function() {
+			//populate content
+			var content = v.data.frames.value[u.currentframe-1].value;
+			var frameTemplate = v.data.frames.value[u.currentframe-1].attributes.type;
+			var data = v.data.frames.value[u.currentframe-1].value;
+			u.objects.bannerWrapper.className = "bannerWrapper frame_"+frameTemplate;
+			//populate content
+			u.objects.bannerWrapper.className += " "+bob.populateContent(data, frameTemplate );
+		}, bob.delay);
+		//check the frametime (you can set this in the template js)
+		var frametime;
+		if(u.frametime !== null && typeof u.frametime === 'object') {
+			//if the frametime is defined for this frame, set it
+			if(typeof u.frametime[frameTemplate] != "undefined") {
+				frametime = u.frametime[frameTemplate];
+				bob.log('bob.stepforward() - updated frametime for '+frameTemplate+' is '+frametime);
+			//else, default to 4 seconds
+			} else {
+				frametime = 4;
+				bob.log('bob.stepforward() - no frametime is set for '+frameTemplate+' so we\'re going with '+frametime);
+			}
+		} else {
+			//if there is no timings set for individual frames, then grab timing from the template jks
+			frametime = u.frametime;
+			bob.log('bob.stepforward() - standard frametime for '+frameTemplate+' is '+frametime);
+		}
+		//clear the frame interval
+		clearInterval(u.timers.step);
+		//create a new interval
+		u.timers.step = setInterval(function() {
+			//bob.log('stepforward setTimeout');
+			if(backup || v.data.attributes.server == 'http://bob2.fcb.co.nz/') {
+				bob.log('!! -> stepInt(); 1 - '+u.currentframe);
+				clearInterval(u.timers.step);
+				bob.stepInt();
+			} else if(!document.hasFocus() && u.loopcount == 1000) {
+				bob.log('!! -> stepInt(); 2 - not running because !document.hasFocus()')
+			} else {
+				bob.log('!! -> stepInt(); 3 - '+u.currentframe);
+				clearInterval(u.timers.step);
+				bob.stepInt();
+			}
+		}, (frametime*1000));
+	},
+
+	getUploadedImage : function(value) {
+		if(bob.isHostedFile(value)) {
+			return value;
+		} else {
+			return v.data.attributes.server+'/uploads/img/'+value;
+		}
+	},
+
+	getTemplateImage : function(value, relative) {
+		if(bob.isHostedFile(value)) {
+			return value;
+		} else if(typeof hybrid == "boolean" && hybrid) {
+			return value;
+		}  else if(relative) {
+			return v.data.attributes.server+'/uploads/templates/'+v.data.attributes.template+'/'+relative+'/'+value;
+		} else {
+			return v.data.attributes.server+'/uploads/templates/'+v.data.attributes.template+'/'+v.size+'/'+value;
+
+		}
+	},
+
+	imgpreload : function(imgs, callback ) {
+		if(imgs.length == 0) {
+			callback( false );
+		} else {
+			bob.log('bob.imgpreload() - starting image preload');
+			bob.log(imgs);
+			//bob.log(imgs);
+			"use strict";
+			var loaded = 0;
+			var images = [];
+			imgs = Object.prototype.toString.apply( imgs ) === '[object Array]' ? imgs : [imgs];
+			var inc = function() {
+				loaded += 1;
+				if ( loaded === imgs.length && callback ) {
+					bob.log('bob.imgpreload() - completed image preload');
+					callback( images );
+				}
+			};
+			for ( var i = 0; i < imgs.length; i++ ) {
+				//bob.log(imgs[i]);
+				images[i] = new Image();
+				images[i].onabort = inc;
+				images[i].onerror = inc;
+				images[i].onload = inc;
+				images[i].src = imgs[i];
+			}
+		}
+	},
+
+	populateContent : function(data, template) {
+		var obj;
+		var skipframe = false;
+		var image = false;
+		var organisedContent = {};
+		var returnClass = '';
+		//here we loop through the content and check for a few fields. 
+		for(nkey in data) {
+			if(data[nkey].attributes.name == 'skipframe' && bob.checkRichContent(data[nkey].value, u.currentframe+'_'+data[nkey].attributes.name) == 'yes') {
+				skipframe = true;
+			}
+			if(data[nkey].attributes.input == 'fileupload' && bob.checkRichContent(data[nkey].value, u.currentframe+'_'+data[nkey].attributes.name) != '') {
+				image = true;
+			}
+			if(data[nkey].attributes.input == 'file' && bob.checkRichContent(data[nkey].value, u.currentframe+'_'+data[nkey].attributes.name) != '') {
+				image = true;
+			}
+		}
+		//if we detected there was an image field. add some extra classes to the DOM so we can make some changes in CSS if needed
+		if(image) {
+			u.objects[template].className = 'frame '+template+' hasimage '
+			returnClass += ' framehasimage';
+		} else {
+			bob.log('bob.populateContent() - template:'+template);
+			u.objects[template].className = 'frame '+template+' noimage '
+		}
+		//if we detected a skip frame field and it was set to 'yes', move on to the next frame
+		//this allows us to create a 2 frame banner that can also work in 1 frame situations if needed
+		if(skipframe) {
+			bob.log('bob.populateContent() - skipping this frame');
+			bob.stepforward(0);
+
+		} else {
+			//now we need to loop through the content and populate the correct frame template (located in index.php)
+			for(k in data) {
+				organisedContent[data[k].attributes.name] = data[k];
+
+				if(typeof data[k].attributes.img_location != 'undefined' && data[k].attributes.img_location != '' && data[k].value != '') {
+					if(typeof selfhosted != "undefined" && selfhosted) {
+						data[k].value = '<img style="max-width:100%;display:inline-block;" src="'+v.data.attributes.server+data[k].attributes.img_location+'" />';
+					} else {
+						data[k].value = '<img style="max-width:100%;display:inline-block;" src="'+v.data.attributes.server+data[k].attributes.img_location+'" />';
+					}
+				}
+
+				//check for image type inputs
+				if( (data[k].attributes.input == 'file' || data[k].attributes.input == 'fileupload') && data[k].attributes.name == 'img_'+v.size) {
+					obj = document.getElementById(template+'_'+data[k].attributes.name);
+					if(obj != null) {
+						obj.classList.remove("imgloaded");
+						//obj.innerHTML = '';
+					}
+					var imgURL = bob.checkRichContent(data[k].value, u.currentframe+'_'+data[k].attributes.name);
+					if(imgURL != '' && obj != null) {
+						if(bob.isHostedFile(imgURL)) {
+							obj.innerHTML = '<img src="'+bob.checkRichContent(data[k].value, u.currentframe+'_'+data[k].attributes.name)+'" />';
+						} else if(richBanner && richBanner == 'doubleclick') {
+							obj.innerHTML = '<img src="'+bob.checkRichContent(v.data.attributes.server+'/uploads/img/'+data[k].value, u.currentframe+'_'+data[k].attributes.name)+'" />';
+						} else {
+							obj.innerHTML = '<img src="'+v.data.attributes.server+'/uploads/img/'+bob.checkRichContent(data[k].value, u.currentframe+'_'+data[k].attributes.name)+'" />';
+						}
+						obj.classList.add("imgloaded");
+					}
+
+				//check for text type inputs
+				} else if(data[k].attributes.input == 'textarea' || data[k].attributes.input == 'text') {
+					obj = document.getElementById(template+'_'+data[k].attributes.name);
+					if(obj != null) {
+						pricecopy = bob.checkRichContent(data[k].value, u.currentframe+'_'+data[k].attributes.name);
+						//price display
+						if(data[k].attributes.name == 'price') {
+							if(pricecopy != '') {
+								obj.style.display = '';
+								pricecopy = pricecopy.replace('$', '<span class="sup ssign">$</span>');
+								pricecopy = pricecopy.replace('*', '<span class="sup sterms">*</span>');
+								pricecopy = pricecopy.replace('pp', '<span class="sup ppterms">pp</span>');
+								pricecopy = pricecopy.replace(',', '<span class="ppcomma">,</span>');
+								pricecopy = pricecopy.replace(/\n/g, "<br />");
+								haspoint = pricecopy.split('.');
+								if(haspoint.length == 2) {
+									pricecopy = haspoint[0]+'<span class="sup scents">'+haspoint[1]+'</span>';
+								}
+								if(typeof data[k].attributes == 'object') {
+									obj.innerHTML = '<span style="font-size:'+(data[k].attributes['fontadjust_'+v.size]/100)+'em;display:block;">'+pricecopy+'</span>';
+								} else {
+									obj.innerHTML = '<span style="display:block;">'+pricecopy+'</span>';
+								}	
+							} else {
+								obj.innerHTML = '';
+							}
+						//hide if no value
+						} else if(pricecopy == '') {
+							obj.style.display = 'none';
+						//check for font adjust
+						} else if(data[k].attributes['fontadjust_'+v.size] != undefined) {
+							obj.style.display = '';
+							obj.innerHTML = '<span style="font-size:'+(data[k].attributes['fontadjust_'+v.size]/100)+'em;line-height:1.1em;display:block;">'+pricecopy.replace(/\n/g, "<br />")+'</span>';
+						//do the usual
+						} else {
+							obj.style.display = '';
+							obj.style.visibility = '';
+							obj.innerHTML = pricecopy.replace(/\n/g, "<br />");
+						}
+					}
+				}
+			}
+			if(typeof u.customCallbacks != "undefined" && typeof u.customCallbacks[template] != "undefined") {
+				u.customCallbacks[template](organisedContent, template);
+			}
+		}
+		return returnClass;
+	},
+
+	onLoad : function() {
+		//doubleclick
+		if(typeof richBanner != "undefined" && richBanner && ( richBanner == 'doubleclick' || richBanner == 'doubleclickspreadsheet' ) ) {
+			bob.log('window.onload() - doubleclick');
+			if (Enabler.isInitialized()) {
+				bob.loadJS();
+			} else {
+				Enabler.addEventListener(studio.events.StudioEvent.INIT, bob.loadJS);
+			}
+		//sizmek
+		} else if(typeof richBanner != "undefined" && richBanner && richBanner == 'sizmek' ) {
+			bob.log('window.onload() - sizmek');
+	 		if (!EB.isInitialized()) {
+	        	EB.addEventListener(EBG.EventName.EB_INITIALIZED, bob.loadJS);
+	        } else {
+	        	bob.loadJS();
+	        }
+	    //standard
+		} else {
+			bob.log('window.onload() - standard');
+			bob.loadJS();
+		}
+	}
+}
+
+
+//LOAD AND RUN
+// If true, start function. If false, listen for INIT.
+window.onload = function() {
+	//check for HTML payload
+	if(v.data && typeof v.data.payload == 'object' && document.getElementById("payload") && v.data.payload.templateid != null) {
+		bob.log(window.clickTag);
+		var htmlDOM = document.getElementById("payload");
+		var currentTemplateID = htmlDOM.getAttribute("data-template");
+		if(!htmlDOM.classList.contains('payloadcomplete') && htmlDOM.getAttribute("data-template") != v.data.payload.templateid && v.data.payload.html && v.data.payload.html != 'false') {
+			setTimeout(function() {
+				bob.log(window.clickTag);
+				bob.log('injecting payload');
+				bob.log(v.data.payload);
+				// htmlDOM.classList.add('payloadcomplete');
+				// htmlDOM.setAttribute("data-template", v.data.payload.templateid);
+				// htmlDOM.innerHTML = v.data.payload.html;
+				document.write(v.data.payload.html[v.size]);
+				bob.log('payload injected');
+				window.clickTagPayload = window.clickTag;
+				window.timer = setInterval(function() {
+					bob.log('body timer');
+					if(document.getElementById("body")) {
+						bob.log('body loaded');
+						bob.onLoad();
+						clearTimeout(window.timer);
+					}
+				}, 100);
+	        	//document.close();
+			}, 250);
+		} else {
+			bob.log('payload already injected');
+			bob.onLoad();
+		}
+
+	} else {
+		bob.onLoad();
+	}
+}
+
+
+
+/* 
+
+-------------------------
+API SETUP
+-------------------------
+
+Enter the names of the API objects below.
+Each object must have an init() and a apicheck(toreturn, id) function.
+
+The toreturn value contains the current value thats been determined by either the variation data or the dynamic spreadsheet
+The id value is the name of the field - frame1_headline for instance
+
+*/
+
+bob.apis = [
+	'airnz_pricing',
+	'flightcentre_pricing',
+	'mitre10_weather'
+]
+
+
+/* 
+
+------------------------
+AIR NZ PRICING API 
+------------------------
+
+*/
+
+var airnz_pricing = {
+	date : false,
+	priceData: false,
+	failReason : false,
+	dateTry : false,
+	init : function() {
+		if(typeof v.data.attributes.airnz_pricing == 'object') {
+
+			//if dynamic content exists, check for the leaveDate
+			if(bob.dc) {
+				for(dkey in bob.dc) {
+					if(dkey != '_profileid' && dkey == 'Profile') {
+						if(typeof bob.dc[dkey][0].leaveDate == 'string') {
+							airnz_pricing.date = bob.dc[dkey][0].leaveDate;
+						} else if(typeof bob.dc[dkey][0].leaveDate == 'object') {
+							airnz_pricing.date = bob.dc[dkey][0].leaveDate[0];
+						}
+					}
+				}	
+			}
+			if(airnz_pricing.date == '2016-01-01') {
+				airnz_pricing.date = false;
+			}
+
+			if(!airnz_pricing.date) {	
+				console.log('NO DATE SET. WILL ASSUME TODAYS DATE');
+				var today = new Date();
+					today.setHours(0,0,0,0);
+				airnz_pricing.date = airnz_pricing.formatDate(today);
+			}
+
+			//console.log(bob.dc);
+			//console.log(v.data.attributes.airnz_pricing);
+			console.log(airnz_pricing.date);
+
+			//if the pricing API is present, set the correct date n stuff
+			if(typeof v.data.attributes.airnz_pricing.data == 'object' && airnz_pricing.date) {
+				bob.log('setting priceData');
+				airnz_pricing.priceData = airnz_pricing.getAdjustedDate(airnz_pricing.date, v.data.attributes.airnz_pricing.data);
+			} else if(!airnz_pricing.date) {
+				airnz_pricing.failReason = 'nodateset';
+			}
+
+			//send a custom report variable to DC
+			var customVar = airnz_pricing.customVar();
+			if(customVar && typeof Enabler != "undefined") {
+				if(airnz_pricing.failReason) {
+					customVar += '_'+airnz_pricing.failReason;
+				}
+				if(airnz_pricing.failReason) {
+					console.log('FAILED: '+airnz_pricing.failReason);
+				}
+				console.log(customVar);
+				
+				// console.log(airnz_pricing.dateTry);
+				// console.log(customVar);
+				// console.log(v.data);
+				Enabler.reportCustomVariableCount1(customVar);
+			}
+		}
+	},
+
+	customVar : function() {
+		//send a custom report variable to DC
+		var customVar = 'generic';
+		if(typeof airnz_pricing.priceData != 'undefined' && typeof airnz_pricing.priceData.price != 'undefined') {
+			//customVar = 'date'+airnz_pricing.date+' depart'+v.data.attributes.airnz_pricing.departing_airport_name+' arrive'+v.data.attributes.airnz_pricing.destination_airport_name+' price'+airnz_pricing.priceData.price;
+			customVar = 'hasprice';
+		}
+		return customVar;
+	},
+
+	apicheck : function(toreturn, id) {
+		//check for dynamic pricing
+		var data = false;
+		try {
+			data = JSON.parse(toreturn.replace(/\'/g, '"'));
+		} catch (e) {
+			data = false;
+		}
+
+		if(typeof data == 'object' && data.sc != null && data.sc == 'price') {
+			toreturn = data.b+data.f+data.a;
+
+			switch (data.d) {
+				case 'adultPriceIncludingTax':
+					if(airnz_pricing.priceData) {
+						toreturn = data.b+airnz_pricing.priceData.price+data.a;
+					}
+					break;
+
+				case 'departing_airport':
+					if(typeof v.data.attributes.airnz_pricing == 'object' && v.data.attributes.airnz_pricing.departing_airport_name != null) {
+						toreturn = data.b+v.data.attributes.airnz_pricing.departing_airport_name+data.a;
+					}
+					break;
+
+				case 'destination_airport':
+					if(typeof v.data.attributes.airnz_pricing == 'object' && v.data.attributes.airnz_pricing.destination_airport_name != null) {
+						toreturn = data.b+v.data.attributes.airnz_pricing.destination_airport_name+data.a;
+					}
+					break;
+
+				case 'combined_airports':
+					if(typeof v.data.attributes.airnz_pricing == 'object' && v.data.attributes.airnz_pricing.destination_airport_name != null) {
+						toreturn = data.b+v.data.attributes.airnz_pricing.destination_airport_name+' ex '+v.data.attributes.airnz_pricing.departing_airport_name+data.a;
+					}
+					break;
+
+				case 'fare_type':
+					if(airnz_pricing.priceData) {
+						toreturn = data.b+'<b>'+airnz_pricing.priceData.type+'</b>'+data.a;
+					} else {
+						toreturn = data.b+'<b>'+data.f+'</b>'+data.a;
+					}
+					break;
+
+				case 'date':
+					if(airnz_pricing.priceData) {
+						toreturn = airnz_pricing.priceData.date;
+						toreturn = toreturn.split('-');
+						toreturn = data.b+toreturn[2]+'/'+toreturn[1]+'/'+toreturn[0]+data.a;
+					}
+					break;
+			}
+		}
+			
+		if(id == 'clickthrough' && typeof u.dynamicExit == 'function' && typeof v.data.attributes.airnz_pricing == 'object' && airnz_pricing.priceData) {
+			bob.log('checking u.dynamicExit() for clickthrough')
+			toreturn = u.dynamicExit({
+				default : toreturn,
+				airnz_pricing : v.data.attributes.airnz_pricing,
+				priceData : airnz_pricing.priceData
+			});
+			//send a custom report variable to DC
+			var customVar = airnz_pricing.customVar();
+			if(customVar && typeof Enabler != "undefined") {
+				Enabler.reportCustomVariableCount2(customVar);
+				toreturn += '&UTM_content='+customVar;
+			}
+		}
+		if(id == 'clickthrough') {
+			//bob.doLog = true;
+			console.log('--');
+			console.log(toreturn);
+			console.log('--');
+		}
+		return toreturn;
+	},
+
+	formatDate : function(date) {
+		var dd = date.getDate();
+		var mm = date.getMonth()+1;
+		var yyyy = date.getFullYear();
+		if(dd<10) {
+		    dd = '0'+dd
+		} 
+		if(mm<10) {
+		    mm = '0'+mm
+		} 
+		var dateTry = yyyy+'-'+mm+'-'+dd;
+		return dateTry;
+	},
+
+	getAdjustedDate : function(startDate, priceArray) {
+		//if the date is set
+		if(priceArray[startDate] != null && typeof priceArray[startDate].fr == 'undefined') {
+			airnz_pricing.dateTry = startDate;
+			priceArray[startDate].date = startDate;
+			return priceArray[startDate];
+		//loop through the dates to get the nearest 3 days
+		} else {
+			function addDays(date, days) {
+				var result = new Date(date);
+				result.setDate(result.getDate() + days);
+				return result;
+			}
+
+			//check to see if the date fails outside the parameters
+			var thisDate = new Date(startDate);
+			var today = new Date();
+				today.setHours(0,0,0,0);
+			var lastDate = new Date(priceArray[Object.keys(priceArray)[Object.keys(priceArray).length - 1]]);
+
+			airnz_pricing.failReason = 'noflightsavailable t'+airnz_pricing.formatDate(today)+' d'+airnz_pricing.formatDate(thisDate);
+
+			var dd, mm, yyyy, dateTry, dateRange = [];
+			if(thisDate < today) {
+				airnz_pricing.failReason = 'dateinpast';
+				startDate = airnz_pricing.formatDate(today);
+				var c = 1;
+				var m = 30;
+				dateRange.push(addDays(startDate, 0));
+				while(c != m) {
+					dateRange.push(addDays(startDate, c))
+					c ++;
+				}
+
+			} else if(thisDate > lastDate){
+				airnz_pricing.failReason = 'datetofarfuture';
+				startDate = airnz_pricing.formatDate(today);
+				var c = 1;
+				var m = 30;
+				dateRange.push(addDays(startDate, 0));
+				while(c != m) {
+					dateRange.push(addDays(startDate, c))
+					c ++;
+				}
+			} else {
+				var c = 1;
+				var m = 15;
+				dateRange.push(addDays(startDate, 0));
+				while(c != m) {
+					dateRange.push(addDays(startDate, c))
+					dateRange.push(addDays(startDate, c*-1))
+					c ++;
+				}
+			}
+
+			//console.log(dateRange);
+
+
+			for(dateKey in dateRange) {
+				dateTry = airnz_pricing.formatDate(dateRange[dateKey]);
+				airnz_pricing.dateTry = dateTry;
+				//if(priceArray[dateTry] == null) {
+					//airnz_pricing.failReason = 'noflightsavailable';
+				//} else 
+				if(priceArray[dateTry] != null && priceArray[dateTry].fr != null) {
+					airnz_pricing.failReason = priceArray[dateTry].fr;
+				} else if(priceArray[dateTry] != null) {
+					if(priceArray[dateTry].fr != null) {
+						airnz_pricing.failReason = priceArray[dateTry].fr;
+					} else {
+						airnz_pricing.failReason = false;
+					}
+					priceArray[dateTry].date = dateTry;
+					return priceArray[dateTry];
+					break;	
+				}
+			}
+		}
+	}
+
+}
+
+
+
+/* 
+
+-------------------------
+FLIGHT CENTRE PRICING API 
+-------------------------
+
+*/
+
+var flightcentre_pricing = {
+	destination : false,
+	departing : false,
+	priceData : false,
+	price : {
+		min : 0,
+		max : 0
+	},
+	init : function() {
+		bob.log('flightcentre_pricing.init()');
+		if(typeof v.data.attributes.flightcentre_pricing == 'object') {
+			flightcentre_pricing.destination = bob.checkRichContent(v.data.frames.value[0].value[1].value, '1_destination');
+			flightcentre_pricing.departing   = bob.checkRichContent(v.data.frames.value[0].value[6].value, '1_departing_airport');
+			flightcentre_pricing.price.min   = bob.checkRichContent(v.data.frames.value[0].value[4].value, '1_minprice');
+			flightcentre_pricing.price.max   = bob.checkRichContent(v.data.frames.value[0].value[5].value, '1_maxprice');	
+			bob.log(flightcentre_pricing);
+			if(typeof v.data.attributes.flightcentre_pricing.data[flightcentre_pricing.departing][flightcentre_pricing.destination] == 'object') {
+				flightcentre_pricing.priceData = v.data.attributes.flightcentre_pricing.data[flightcentre_pricing.departing][flightcentre_pricing.destination][0];
+			}
+			//skip the frame if the price is out of range
+			if(flightcentre_pricing.priceData.Price_Raw < flightcentre_pricing.price.min || flightcentre_pricing.priceData.Price_Raw > flightcentre_pricing.price.max ) {
+				flightcentre_pricing.priceData = false;
+				//v.data.frames.value[0].value[0].value = 'yes';
+			}
+			if(!flightcentre_pricing.priceData) {
+				var replay_cta = document.getElementById('replay_cta');
+					replay_cta.style.display = 'none !important;';
+				u.loopcount = 1;
+				u.currentframe = 1;
+			}
+			bob.log(flightcentre_pricing.priceData);
+		}
+	},
+	apicheck : function(toreturn, id) {
+
+		//check for dynamic pricing
+		var data = false;
+		try {
+			data = JSON.parse(toreturn.replace(/\'/g, '"'));
+		} catch (e) {
+			//bob.log(e);
+			data = false;
+		}
+		if(id == 'clickthrough' && typeof v.data.attributes.flightcentre_pricing == 'object' && flightcentre_pricing.priceData && flightcentre_pricing.priceData.URL != undefined) {
+			toreturn = flightcentre_pricing.priceData.URL+'?utm_source=remarketing&utm_medium=banner&utm_campaign=fcbaseline';
+
+		} else if(typeof v.data.attributes.flightcentre_pricing == 'object' && typeof data == 'object' && data.sc != null && data.sc == 'fc_price' && flightcentre_pricing.priceData) {
+			toreturn = data.b+data.f+data.a;
+			switch (data.d) {
+				case 'price':
+					var price = flightcentre_pricing.priceData.Price.replace('.00', '');
+					toreturn = data.b+price+data.a;
+					break;
+				case 'destination_airport':
+					toreturn = data.b+flightcentre_pricing.destination+data.a;
+					break;
+				case 'departing_airport':
+					toreturn = data.b+flightcentre_pricing.priceData.Departure+data.a;
+					break;
+				case 'travel_dates':
+					toreturn = data.b+flightcentre_pricing.priceData.Travel_dates+data.a;
+					break;
+				case 'expiry_date':
+					//2017-09-29T14:00:00Z
+					var date = flightcentre_pricing.priceData.Product_commerce_expiry_date.split('T');
+						date = date[0].split('-');
+						date = date[2]+'/'+date[1]+'/'+date[0];
+					toreturn = data.b+date+data.a;
+					break;
+			}
+
+		} else if(typeof data == 'object') {
+			toreturn = data.b+data.f+data.a;
+
+		}
+
+		return toreturn;
+	}
+}
+
+
+
+/* 
+
+-------------------------
+MITRE10 WEATHER API 
+-------------------------
+
+*/
+
+var mitre10_weather = {
+	init : function() {
+		//silence
+	},
+	apicheck : function(toreturn, id) {
+		if(typeof v.data.attributes.weather == 'object') {
+			if(v.data.attributes.weather.data.data != null) {
+				toreturn = toreturn.replace("[w_current]", v.data.attributes.weather.current);
+				toreturn = toreturn.replace("[w_location]", v.data.attributes.weather.location);
+				toreturn = toreturn.replace("[w_temp]", Math.round(v.data.attributes.weather.data.data.max));
+			}		
+		}
+		return toreturn;
+	}
+}

@@ -1,0 +1,10 @@
+; define('exp_currencyformats_SGD', function() {
+
+	'use strict';
+
+window.uitkformatter = window.uitkformatter || {};
+window.uitkformatter.currencySettings =  window.uitkformatter.currencySettings || {};
+window.uitkformatter.currencySettings.en_SG = window.uitkformatter.currencySettings.en_SG || {}; 
+window.uitkformatter.currencySettings.en_SG.SGD = {"currencyFormat":"¤#,##0.00","scale":2,"negativeCurrencyFormat":"-SG$#,##0.00","groupingSeparator":",","decimalSeparator":".","currencySymbol":"SG$"};
+return window.uitkformatter;
+});

@@ -1,0 +1,590 @@
+/* TEMPLATE V2 */
+
+/* SET THE BANNER SIZE */
+body,html,.bannerWrapper,.frame,.border,.common,#bg-exit {
+	box-sizing: border-box;
+	/* BANNER WIDTH */
+	width: 160px;
+	/* BANNER HEIGHT */
+	height: 600px;
+	overflow: hidden;
+	padding: 0px;
+	margin: 0px;
+}
+
+/* Make sure everything is positioned correctly */
+.bannerWrapper,.frame,.border,.common,#bg-exit {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+/* #bg-exit is our button that fires the clicktag code */
+#bg-exit {
+	z-index: 998;
+	cursor: pointer;
+}
+
+/* default frame animation */
+.frame {
+	opacity: 0;
+	transition: .5s;
+    z-index: 3;
+}
+
+.imageWrapper {
+    z-index: 1;
+}
+
+.imageWrapper .image {
+    opacity: 0;
+    transition: .5s;
+}
+.imageWrapper .image.f1 {
+    opacity: 1;
+}
+
+.frame_frame2 .imageWrapper .image.f2 {
+    opacity: 1;
+}
+.frame_frame3 .imageWrapper .image.f3 {
+    opacity: 1;
+}
+.frame_frame4 .imageWrapper .image.f4 {
+    opacity: 1;
+}
+.frame_frame5 .imageWrapper .image.f5 {
+    opacity: 1;
+}
+.frame_frame6 .imageWrapper .image.f6 {
+    opacity: 1;
+}
+
+
+/* Set the display states for each frame type (you can add more) */
+.frame_frame1 .frame1 {
+	opacity: 1;
+}
+.frame_frame2 .frame2 {
+	opacity: 1;
+}
+.frame_frame3 .frame3 {
+	opacity: 1;
+}
+.frame_frame4 .frame4 {
+	opacity: 1;
+}
+.frame_frame5 .frame5 {
+	opacity: 1;
+}
+.frame_frame6 .frame6 {
+	opacity: 1;
+}
+.frame_frame7 .frame7 {
+	opacity: 1;
+}
+
+/* default replay button, you can replace this with your own if you like
+   avoid placing the replay button on the top right as this can cause issues with display networks */ 
+#replay_cta {
+	position: absolute;
+	left: 5px;
+	bottom: 25px;
+	opacity: 0;
+	cursor: pointer;
+	z-index: 999;
+	cursor: pointer;
+	transition: .5s;
+	width: 20px;
+	height: 20px;
+}
+
+/* show the replay button at the end of the banner */
+#replay_cta.on {
+	opacity: 1;
+}
+
+/* on hover, rotate the replay button */
+#replay_cta:hover {
+	transform: rotate(-180deg);
+	transform-origin: 50% 50%;
+}
+
+/* hide the replay button when generating backups */
+.backup #replay_cta {
+	display: none;
+}
+
+/* if you need to hide/show some other assets on the backups, use the following class */
+body.backup {
+
+}
+
+
+.ppcomma {
+	font-size: .7em;
+    margin-left: 0.08em;
+    margin-right: 0.08em;
+    bottom:0.08em;
+}
+
+
+/* ADD YOUR STYLES HERE */
+body,html {
+	font-family: sans-serif;
+	color: #FFF;
+	background-color: #000;
+	font-size: 13px;
+}
+
+@font-face {
+    font-family: 'airnewzald';
+    src: url('airnewzald.woff?7411050') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.globe {
+/*
+	border-radius: 100%;
+	background-color: rgba(255,255,255,.85);
+*/
+	width: 160px;
+	height: 170px;
+	position: absolute;
+	top: 150%;
+	left: 50%;
+	margin-top: -70px;
+	margin-left: -80px;
+	color: #ffff;
+	text-align: center;
+	transition: all 0s, top .5s 1s;
+    z-index: 50 !important;
+}
+
+.black_globe {
+	border-radius: 100%;
+	background-color: rgba(0,0,0,1);
+	width: 500px;
+	height: 500px;
+	position: absolute;
+	top: 40%;
+	left: -70%;
+    z-index: 2;
+}
+
+/*
+.frame_frame1 .globe,
+.frame_frame2 .globe,
+.frame_frame3 .globe,
+.frame_frame4 .globe,
+.frame_frame5 .globe,
+.frame_frame6 .globe {
+	top: 40%;
+}
+*/
+
+.globeInner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	box-sizing: border-box;
+	width: 100%;
+	padding-bottom: 15px;
+}
+
+body.backup .globeInner {
+	transform: none;
+	position: relative;
+	top: auto;
+	left: auto;
+	padding-top: 20px;
+}
+
+.frame_frame1 .headline {
+	font-size: 60px;
+	font-family: 'airnewzald';
+	position: relative;
+	line-height: .5em;
+	padding-top: 2px;
+	letter-spacing: 0em; /*-.04em;*/
+	padding-bottom: 3px;
+}
+.frame_frame1 .headline span {
+	line-height: 0.9em !important;
+}
+.frame_frame3 .headline {
+	font-weight: bold;
+	position: relative;
+	line-height: .5em;
+	padding-top: 15px;
+	letter-spacing: -.04em;
+}
+
+.frame_frame3 .subheadline {
+    font-size: 24px;
+	font-family: 'airnewzald';
+	position: relative;
+	line-height: 1em;
+}
+
+.frame_frame3 .price {
+	font-family: 'airnewzald';
+	position: relative;
+	letter-spacing: -.04em;
+	padding-bottom: 3px;
+}
+
+.frame_frame4 .headline {
+	font-weight: normal;
+    position: relative;
+    line-height: .5em;
+    padding-top: 25px;
+    padding-left: 15px;
+    padding-right: 15px;
+    letter-spacing: -.04em;
+    font-size: 1.2em;
+}
+
+.frame_frame4 .subheadline,
+.frame_frame5 .subheadline {
+    font-family: 'airnewzald';
+    position: relative;
+    line-height: .1em;
+    padding-left: 5px;
+    padding-right: 5px;
+    letter-spacing: -.04em;
+    font-size: 1.8em;
+}
+
+.frame_frame5 .headline {
+	font-weight: normal;
+    padding-left: 15px;
+    padding-right: 15px;
+
+}
+
+.from {
+    font-weight: normal;
+    position: relative;
+    font-size: 12px;
+}
+
+.destination_airport {
+    padding-top: 13px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.faretype {
+	font-size: 10px;
+}
+
+.price {
+	font-size: 60px;
+	font-family: 'airnewzald';
+	position: relative;
+	line-height: .5em;
+	letter-spacing: -.04em;
+	padding-bottom: 8px;
+}
+
+.price span {
+	position: relative;
+	line-height: .75em !important;
+}
+
+.sup {
+	font-size: .5em;
+	top: -.5em;
+}
+.ssign {
+    font-family: sans-serif;
+    /* font-style: italic; */
+    /* font-weight: bold; */
+    font-size: 0.3em;
+    top: -23px;
+    left: -2px;
+}
+.sterms {
+    font-family: sans-serif;
+    /* font-style: italic; */
+    /* font-weight: bold; */
+    font-size: 0.5em;
+    top: -15px;
+    left: 0px;
+}
+
+.price-off {
+	font-size: 21px;
+	letter-spacing: 0px;
+	margin-left: -5px;
+}
+
+.departing_airport {
+	font-size: 12px;
+    padding-top: 5px;
+}
+
+.departing_date {
+	font-size: 10px;
+}
+
+.cta {
+	font-size: 13px;
+	background-color: #952D98;
+	display: block;
+	width: 56px;
+	height: 56px;
+	margin-left: -28px;
+	margin-top: -28px;
+	border-radius: 100%;
+	transition: .5s;
+	line-height: .95em;
+	color: #fff;
+	position: absolute;
+	bottom: -45px;
+	right: 52px;
+	text-align: center;
+	padding-top: 16px;
+	box-sizing: border-box;
+	transition: all 0s, opacity .25s 2s, transform .25s 2s;
+	opacity: 0;
+	transform: scale(1.25);
+}
+
+.frame_frame6 .cta {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.image {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.terms {
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	font-size: 9px;
+	box-sizing: border-box;
+	padding: 5px;
+	background-color: rgba(0,0,0,.7);
+	width: 100%;
+	text-align: center;
+	color: rgba(255,255,255,.9);
+    z-index: 20;
+}
+
+#frame6_terms{
+    bottom: 55px !important;
+}
+
+/*
+#replay_cta {
+	display: none !important;
+}
+*/
+
+
+.koru {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 140px;
+    height: 22px;
+    background-image: url('koru_long.png');
+    -webkit-transition: 1s;
+    transition: 1s;
+    opacity: 1;
+    background-repeat: no-repeat;
+    background-position: top right;
+    background-size: contain;
+    clip: rect(0px,160px,40px,117px);
+}
+.koru_black {
+    background-image: url('koru_long_black.png');
+}
+.wordmark {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 140px;
+    height: 22px;
+    background-image: url('koru_long.png');
+    -webkit-transition: 1s;
+    transition: 1s;
+    opacity: 1;
+    background-repeat: no-repeat;
+    background-position: top right;
+    background-size: contain;
+    clip: rect(0px,160px,40px,0px);
+}
+.wordmark_black {
+    background-image: url('koru_long_black.png');
+}
+
+.staralliance {
+    background-image: url('StarAlliance_290617.png');
+    width: 118px;
+    left: 25px;
+    bottom: 5px;
+    height: 11px;
+    position: absolute;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+    -webkit-transition: .5s;
+    transition: .5s;
+    background-size: contain;
+    background-position: left;
+    z-index: 10;
+}
+.staralliance_black {
+    /*background-image: url('StarAlliance_290617_black.png');*/
+}
+
+.kiwi {
+    background-image: url('kiwi.png');
+    width:300px;
+    height:250px;
+    left: -200px;
+    top: 430px;
+    opacity: 1;
+    position: absolute;
+    z-index: 90;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: left;
+    animation: pete 7s ease-in-out forwards;
+    transform-origin: 30% 100%;
+}
+
+@keyframes pete {
+
+	/* off page */
+	0% {
+		top: 430px;
+		left: -300px;
+		transform: rotate(-20deg);
+/*		transform: rotate(0deg) rotateY(0deg);*/
+	}
+
+	/* bottom left */
+	10%,22.5% {
+		top: 430px;
+		left: -200px;
+		transform: rotate(0deg);
+	}
+    25% {
+		transform: rotate(5deg);
+	}
+    30% {
+		transform: rotate(0deg);
+	}
+	35% {
+		transform: rotate(5deg);
+	}
+    40% {
+		transform: rotate(0deg);
+	}
+	45% {
+		transform: rotate(5deg);
+	}
+    50% {
+		transform: rotate(0deg);
+	}
+	55% {
+		transform: rotate(5deg);
+	}
+    60% {
+		transform: rotate(0deg);
+	}
+	65% {
+		transform: rotate(5deg);
+	}
+
+	/* bottom right */
+	70% {
+		top: 430px;
+		left: 200px;
+		transform: rotate(0deg);
+	}
+
+	/* spin to face left and pause */
+	70.1% {
+		left: 300px;
+		transform: rotateY(180deg);
+		top: 430px;
+	}
+
+	/* animate off */
+	75%,95% {
+		left: 170px;
+		transform: rotate(-7deg) rotateY(180deg);
+		top: 430px;
+	}
+
+	100% {
+		left: 350px;
+		transform: rotate(14deg) rotateY(180deg);
+		top: 450px;
+	}
+
+}
+
+.globe {
+	opacity: 0;
+}
+
+.frame_frame1 .frame1 .globe {
+    animation: globein .5s 1s ease-out forwards;
+}
+
+.frame_frame2 .frame2 .globe,
+.frame_frame3 .frame3 .globe,
+.frame_frame4 .frame4 .globe,
+.frame_frame5 .frame5 .globe,
+.frame_frame6 .frame6 .globe,
+.frame_frame7 .frame7 .globe,
+.frame_frame8 .frame8 .globe {
+    animation: globein .5s 0s ease-out forwards;
+}
+
+@keyframes globein {
+	0% {
+		opacity: 0;
+        left:-100%;
+		top: 60%;
+	}
+	100% {
+		opacity: 1;
+        left:50%;
+		top: 60%;
+	}
+}
+
+.bannerWrapper.out .globe {
+    animation: globeout .5s 0s ease-in forwards !important;
+}
+
+@keyframes globeout {
+	0% {
+		opacity: 1;
+        left:50%;
+		top: 60%;
+	}
+	100% {
+		opacity: 0;
+        left:150%;
+		top: 60%;
+	}
+}
+
+
+

@@ -1,0 +1,217 @@
+
+//dont alter these
+var u = window.u || {};
+var v = window.v || {};
+
+//template setup
+v = {
+	//enter the size of the banner here
+	size : '160x600',
+	//dont alter these
+	//v.data will hold all the content for the banner
+	data : {},
+	template : false
+}
+
+//main init
+u = {
+	//banner settings
+	//how many seconds should each frame display for?
+	//frametime : 4, //seconds
+
+	//you can also assign different timings to each frame by doing the following
+	 frametime : {
+	 	'frame1' : 3, //seconds
+	 	'frame2' : 5,  //seconds
+        'frame3' : 3,  //seconds
+        'frame4' : 3,  //seconds
+        'frame5' : 3,  //seconds
+        'frame6' : 3
+	 },
+
+	//dont alter these
+	coreversion : 2,
+	timers : {},
+	framecount : false,
+	currentframe : 0,
+	objects : {},
+	bodyBaseClassName : false,
+	paused : false,
+	loopcount : 1,
+	currentloop : 1,
+	customCallbacks : {},
+
+	//if you need to set some global variables or functions, you should do it here.
+
+	//INIT();
+	//init function fires once the banner html and doubleclick script has loaded and the DOM is ready
+	init : function() {
+
+		//first things first. Create one of these for each frame template you have
+		u.objects.frame1 = document.getElementById("frame1");
+		u.objects.frame2 = document.getElementById("frame2");
+		u.objects.frame3 = document.getElementById("frame3");
+		u.objects.frame4 = document.getElementById("frame4");
+		u.objects.frame5 = document.getElementById("frame5");
+		u.objects.frame6 = document.getElementById("frame6");
+
+		//if you would like to fire off some code as soon as the banner loads, you can enter it here.
+		//eg.
+		bob.log('banner has loaded :)');
+
+		//If you need some code to execute when a certain frame type is being displayed, you can enter it into the customCallbacks array as a function.
+		//It will also pass all the content for that frame though in an array called content.
+		//Because this function is called after the content has been populated you can use it to override any content on the frame you like.
+		//eg.
+		//
+
+		//FRAME 1
+		u.customCallbacks['frame1'] = function(content, frame) {
+			//console.log('frame1', bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') );
+			if ( bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') == 'black' ) {
+				document.getElementById('frame1_koru').className = "koru koru_black";
+			}
+			document.getElementById('frame1_kiwi').className = "kiwi";
+		}
+
+		//FRAME 2
+		u.customCallbacks['frame2'] = function(content, frame) {
+			//console.log('frame2', bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') );
+			if ( bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') == 'black' ) {
+				document.getElementById('frame2_koru').className = "koru koru_black";
+			}
+
+			u.priceFrom(content, frame);
+		}
+
+		//FRAME 3
+		u.customCallbacks['frame3'] = function(content, frame) {
+			//console.log('frame3', bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') );
+			if ( bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') == 'black' ) {
+				document.getElementById('frame3_koru').className = "koru koru_black";
+			}
+
+			u.priceFrom(content, frame);
+		}
+
+		//FRAME 4
+		u.customCallbacks['frame4'] = function(content, frame) {
+			//console.log('frame4', bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') );
+			if ( bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') == 'black' ) {
+				document.getElementById('frame4_koru').className = "koru koru_black";
+			}
+		}
+
+		//FRAME 5
+		u.customCallbacks['frame5'] = function(content, frame) {
+			//console.log('frame5', bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') );
+			if ( bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') == 'black' ) {
+				document.getElementById('frame5_koru').className = "koru koru_black";
+			}
+		}
+
+		//FRAME 6
+		u.customCallbacks['frame6'] = function(content, frame) {
+			//console.log('frame6', bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') );
+			if ( bob.checkRichContent(content.logocolour.value, u.currentframe+'_logocolour') == 'black' ) {
+				document.getElementById('frame6_koru').className = "wordmark wordmark_black";
+				document.getElementById('frame6_staralliance').className = "staralliance staralliance_black";
+			}
+			document.getElementById('frame1_kiwi').className = "";
+
+			u.priceFrom(content, frame);
+		}
+
+		//FRAME 1
+//		u.customCallbacks['frame7'] = function(content, frame) {
+//			bob.log('firing a custom callback for '+frame+' :). below is the content for this frame.');
+//			bob.log(content);
+//			bob.log('----- end');
+
+			///---- some handy functions
+			//if you want to get an asset from the template folder, use the following function:
+			//bob.getTemplateImage('imagename.jpg');
+			//if you want to get an asset that has been uploaded using the form, use the following function:
+			//bob.getUploadedImage('imagename.jpg');
+
+//			var price = u.checkDate();
+//
+//			if( (!price.price && window.location.origin != 'http://bob2.fcb.co.nz') || content.price.value == '' )  {
+//				var destination_airport = document.getElementById("frame7_destination_airport");
+//				var destination = destination_airport.innerHTML;
+//					destination_airport.innerHTML = 'Explore';	
+//					destination_airport.style.paddingTop = '30px';
+//					destination_airport.style.paddingBottom = '0px';
+//				var frame7_price = document.getElementById("frame7_price");
+//					frame7_price.innerHTML = destination;
+//					frame7_price.style.fontSize = '37px';
+//					frame7_price.style.paddingTop = '0px';
+//					frame7_price.style.paddingBottom = '30px';
+//				var frame7_faretype = document.getElementById("frame7_faretype");
+//					frame7_faretype.style.display = 'none';
+////				var frame7_departing_airport = document.getElementById("frame7_departing_airport");
+////					frame7_departing_airport.style.display = 'none';
+////				var frame7_departing_date = document.getElementById("frame7_departing_date");
+////					frame7_departing_date.style.display = 'none';
+//				var frame7_terms = document.getElementById("frame7_terms");
+//					frame7_terms.style.display = 'none';
+//			}
+//		}
+
+	},
+
+	priceFrom : function(content, frame) {
+
+		if ( bob.checkRichContent(content.price.value, u.currentframe+'_price').indexOf('off') != -1 ) {
+			var price_text = document.getElementById(frame+'_price').innerHTML.toString();
+			document.getElementById(frame+'_price').innerHTML = price_text.split('off').join('<span class="price-off">off</span>');
+			document.getElementById(frame+'_from').innerHTML = "up to";
+		}
+
+	},
+
+	checkDate : function() {
+		
+		var date = false;
+		var dc = false;
+		
+		if(typeof dynamicContent == 'object') {
+			dc = dynamicContent;
+		} else if(typeof devDynamicContent == 'object') {
+			dc = devDynamicContent;
+		}
+		
+		if(dc) {
+			for(ldkey in dc) {
+				if(ldkey != '_profileid' && ldkey == 'Profile') {
+					if(typeof dc[ldkey][0].leaveDate == 'string') {
+						date = dc[ldkey][0].leaveDate;
+					} else if(typeof dc[ldkey][0].leaveDate == 'object') {
+						date = dc[ldkey][0].leaveDate[0];
+					}
+				}
+			}	
+		}
+
+		var result = {
+			price : false
+		};
+
+		var priceData = false;
+		if(typeof v.data.attributes.pricing == 'object' && typeof v.data.attributes.pricing.data == 'object' && date) {
+			priceData = bob.pricingAPI_getAdjustedDate(date, v.data.attributes.pricing.data);
+		}
+		
+		if(priceData) {
+			result.price = priceData.price;
+		}
+
+		if(typeof v.data.attributes.pricing == 'object') {
+			result.departing_airport_name = v.data.attributes.pricing.departing_airport_name;
+			result.destination_airport_name = v.data.attributes.pricing.destination_airport_name;
+		}
+
+		return result;
+	}
+
+}

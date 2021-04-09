@@ -1,0 +1,62 @@
+.notifier{pointer-events:none;right:0;bottom:0;position:fixed;z-index:1001}
+.notifier .notification,.notifier .notification h2{color:#1f1f1f}
+.notifier .notification{z-index:1001;opacity:0;margin-top:1em;background-color:#ffcb00}
+.notifier .notification .flex-card{margin:0;height:auto;width:100%}
+.notifier .notification .flex-figure{text-align:center;width:3.52941176em;position:relative}
+.notifier .notification .flex-figure .icon{position:absolute;top:0;bottom:0;left:0;right:0}
+.notifier .notification .flex-figure .icon.icon-deltadot{background-repeat:no-repeat;background-position:center}
+.notifier .notification .flex-figure .icon.icon-deltadot.up{background-image:url('//a.travel-assets.com/urgency-ui-web/images/delta_dot_up.png')}
+.notifier .notification .flex-figure .icon.icon-deltadot.down{background-image:url('//a.travel-assets.com/urgency-ui-web/images/delta_dot_down.png')}
+.notifier .notification .flex-figure .icon:after,.notifier .notification .flex-figure .icon:before{transform:translateY(-50%);top:45%;font-size:1.1333333333333333em}
+.notifier .notification .flex-area-primary{align-self:center;overflow-wrap:break-word;font-size:.7647058823529411em;font-weight:bold}
+.notifier .notification .flex-figure+.flex-content .flex-area-primary{padding-left:0}
+.notifier .notification .flex-area-secondary{padding:.35294118em .47058824em 0 0}
+.notifier .notification .flex-area-secondary .btn-close{pointer-events:auto;padding:0;margin:0}
+@media only screen and (min-width:45.3125em){.notifier{right:1em;bottom:1em}
+.notifier .notification{max-width:22.35294118em}
+}
+.notifier .notification,.notifier .notification h2{color:#fff;font-weight:500}
+.notifier .notification{font-weight:500;-webkit-border-radius:.35294118em;-moz-border-radius:.35294118em;-o-border-radius:.35294118em;border-radius:.35294118em;background-color:#1f1f1f;background-color:rgba(31,31,31,0.81)}
+.notifier .notification .flex-area-secondary{align-self:center;padding-top:0}
+.notifier .notification .flex-area-secondary .btn-close:hover{color:#fff}
+@media only screen and (max-width:45.3125em){.notifier{padding:0 .58823529em .35294118em .58823529em}
+}
+.notifier .notification .flex-figure{min-height:3.05882353em}
+.notifier .notification .flex-figure .icon{background-repeat:no-repeat;background-position:center}
+.no-svg .notifier .flex-figure .people{background-image:url('//a.travel-assets.com/urgency-ui-web/images/people-v1.png')}
+.no-svg .notifier .flex-figure .calendar{background-image:url('//a.travel-assets.com/urgency-ui-web/images/calendar-v1.png')}
+.no-svg .notifier .flex-figure .trend{background-image:url('//a.travel-assets.com/urgency-ui-web/images/trend-v1.png')}
+.no-svg .notifier .flex-figure .clock{background-image:url('//a.travel-assets.com/urgency-ui-web/images/clock-v1.png')}
+.svg .notifier .flex-figure .people{background-image:url('//a.travel-assets.com/urgency-ui-web/images/people-v1.svg')}
+.svg .notifier .flex-figure .calendar{background-image:url('//a.travel-assets.com/urgency-ui-web/images/calendar-v1.svg')}
+.svg .notifier .flex-figure .trend{background-image:url('//a.travel-assets.com/urgency-ui-web/images/trend-v1.svg')}
+.svg .notifier .flex-figure .clock{background-image:url('//a.travel-assets.com/urgency-ui-web/images/clock-v1.svg')}
+.ie11 .notifier{width:100%}
+.ie11 .notifier .notification{margin-left:auto}
+.no-flexbox .notifier .uitk-grid{word-spacing:normal}
+.notifierUXTreatments-1 .notifier .notification,.notifierUXTreatments-2 .notifier .notification{-webkit-border-radius:.17647059em;-moz-border-radius:.17647059em;-o-border-radius:.17647059em;border-radius:.17647059em}
+.notifierUXTreatments-1 .notifier,.notifierUXTreatments-3 .notifier{right:0;left:0;margin:0 auto}
+@media only screen and (min-width:30.6875em){.notifierUXTreatments-1 .notifier,.notifierUXTreatments-3 .notifier{width:21.58823529em}
+}
+.compressionAlert.graphic{width:100%;height:70px;display:table}
+.compressionAlert.graphic .scorebox{display:table-cell;background-color:#3b4c5b;width:78px;padding-top:.23529412em}
+.compressionAlert.graphic .scorebox .text{text-align:center;color:#fff;font-weight:bold}
+.compressionAlert.graphic .scorebox .text.score{font-size:1.7647058823529411em;line-height:1em}
+.compressionAlert.graphic .scorebox .text.description{font-size:.8823529411764706em}
+.compressionAlert.graphic .scorebox .text .sign{font-size:.5882352941176471em;vertical-align:super}
+.compressionAlert.graphic .alert{display:table-cell;vertical-align:top}
+.compressionAlert.graphic .alert.alert-info{border:0;padding-left:.70588235em}
+.compressionAlert.graphic .alert .alert-message{margin-right:1.17647059em}
+.compressionAlert.graphic .alert .alert-message .linewrap{display:block}
+.compressionAlert.graphic .alert .alert-message .title{font-weight:bold}
+.compressionAlert.text{width:100%;border:0;padding-left:.70588235em;margin-bottom:auto}
+.compressionAlert.text .alert-message{margin-right:1.17647059em}
+.compressionAlert.text .alert-message .linewrap{display:inline}
+.compressionAlert.text .alert-message .title{font-weight:bold}
+.compressionAlert.text .alert-message .title .score{font-size:1.7647058823529411em}
+@media only screen and (max-width:768px){.compressionAlert.text .alert-message .linewrap{display:block}
+}
+#priceTrendAlert{width:100%}
+#priceTrendAlert .icon-deltadot{width:1.18461538em;height:1.18461538em}
+#priceTrendAlert .icon-deltadot.priceTrendHigh{background-image:url('//a.travel-assets.com/urgency-ui-web/images/delta_dot_up.png')}
+#priceTrendAlert .icon-deltadot.priceTrendLow{background-image:url('//a.travel-assets.com/urgency-ui-web/images/delta_dot_down.png')}

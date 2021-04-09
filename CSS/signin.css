@@ -1,0 +1,183 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+margin: 0;
+padding: 0;
+border: 0;
+font-size: 100%;
+font: inherit;
+vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+display: block;
+}
+
+body {
+line-height: 1;
+}
+
+ol, ul {
+list-style: none;
+}
+
+blockquote, q {
+quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+content: '';
+content: none;
+}
+
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+
+
+/*****Header****/
+
+
+header {
+display:block;
+padding:5px 15px;
+background:#000;
+width:85%;
+margin-left:auto;
+margin-right:auto;
+transform-style:preserve-3d;
+transform:perspective(100px);
+box-shadow:0 0 12px grey;  
+border-radius:0 0 10px 10px;
+text-align:right;
+height:40px;
+}
+
+.head-logo{
+display:inline-block;
+float:left;
+text-align:center;
+color:#fff;
+}
+
+.head-logo h1{
+	padding-top:10px;
+font-size:25px;
+font-family:"homestead";
+}
+
+nav{
+margin-top:10px;
+}
+
+nav a{
+padding:18.5px 10px;
+color:#ddd;
+}
+
+nav a:hover{
+background:#fff;
+color:#000;
+}
+
+/***Form-Content****/
+
+form,table{
+width:45%;
+color:#fff;
+align:center;
+margin:0px auto;
+margin-top:30px;
+}
+
+ table{
+ border:none;
+ border-radius:40px;
+ background: rgba(0, 0, 0, 0.8);
+opacity:0.7;
+ }
+
+input,text{
+	font-weight:bold;
+	margin-top:30px;
+margin-bottom:20px;
+color:#f8f8ff;
+border-radius:90px;
+padding:30px;
+cursor:pointer;
+border:0.2px solid White;
+background:none;
+}
+
+.style1{
+margin-bottom:20px;
+font-size:25px;
+color:#f8f8ff;
+font-family: 'Lato', sans-serif;
+}
+
+form{
+font-size:25px;
+color:#f8f8ff;
+font-family: 'Lato', sans-serif;
+}
+
+th{
+font-size:50px;
+font-weight:bold;
+font-family:leave;
+color:#f8f8ff;
+}
+
+.term {
+color:#f8f8ff;
+font-size:20px;
+word-spacing:0.1em;
+}
+
+.btn-alt {
+margin-top:30px;
+color:#f8f8ff;
+padding:20px 70px 0px 70px;
+border:1px solid #bbb;
+border-radius:50px;
+font-size:40px;
+font-family: midtown;
+}
+
+.btn-alt:hover {
+background:#fff;
+color:#000;
+}
+
+/****Main-Content***/
+
+a {
+text-decoration:none;
+color:#fff;
+}
+
+a {
+	color: hsl(210, 100%, 50%);
+}
+
+.top-container {
+	background-image:url("https://www.amera-store.com/wp-content/uploads/2018/06/world-war-2-powerpoint-template-elegant-world-history-powerpoint-wondeful-world-history-powerpoint-templates.jpg");
+    background-attachment: fixed;
+	opacity:0.9;
+	background-size:cover;
+	background-repeat:no-repeat;
+}
